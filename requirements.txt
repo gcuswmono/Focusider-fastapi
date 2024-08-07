@@ -3,5 +3,7 @@ uvicorn
 httpx
 pydantic
 python-dotenv
+pymongo
 sqlalchemy
 databases
+pymysql

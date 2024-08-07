@@ -13,3 +13,6 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     reply: str
+
+class ChatMetaData(BaseModel):
+    mongo_id: str
