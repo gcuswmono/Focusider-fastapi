@@ -27,7 +27,7 @@ async def get_chat_state(member_id: int, article_id: int):
 # Redis에 채팅 상태 저장
 async def save_chat_state(member_id: int, article_id: int, state: dict):
     key = f"chat:{member_id}:{article_id}"
-    await redis_client.set(key, json.dumps(state))
+    await redis_client.set(key, json.dumps(state, ensure_ascii=False))
 
 
 # GPT-4o-mini 모델을 호출하는 함수
@@ -50,7 +50,7 @@ def gpt_generate_response(user_question: str):
             presence_penalty=0,
         )
         # GPT 응답 출력
-        return response["choices"][0]["message"]["content"]
+        return response.choices[0].message.content
 
     except openai.APIConnectionError as e:
         print(f"OpenAI API Error: {e}")
@@ -118,13 +118,32 @@ async def handle_chat(
             if not article:
                 raise ValueError("Article not found")
             prompt = f"Article: {article.content}\nUser Answer: {user_answer}\nNext Question:"
-        elif current_step <= 5:
+        elif current_step < 5:
             prompt = f"Previous Chat: {chat_history}\nUser Answer: {user_answer}\nNext Question:"
         else:
             prompt = f"Summarize the conversation: {state['chat']}"
+            # GPT 응답 생성
+            gpt_response = gpt_generate_response(prompt)
+            print("GPT Summary Response:", gpt_response)
+
+            # 최종 대화 내용을 MariaDB에 저장
+            new_chat_history = ChatHistory(
+                member_id=member_id,
+                chat=json.dumps(state["chat"]),  # 대화 내역을 JSON으로 저장
+                article_id=article_id,
+            )
+            db.add(new_chat_history)
+            await db.commit()  # DB에 저장 및 커밋
+            print("Chat history saved to DB.")
+
+            # Redis에서 해당 데이터를 삭제
+            await redis_client.delete(f"chat:{member_id}:{article_id}")
+            print(f"Deleted Redis key: chat:{member_id}:{article_id}")
+
+            return gpt_response
 
         # GPT 응답 생성
-        gpt_response = await gpt_generate_response(prompt)
+        gpt_response = gpt_generate_response(prompt)
         print("GPT Response:", gpt_response)  # GPT 응답 출력
 
         # 채팅 내역 업데이트
@@ -133,6 +152,9 @@ async def handle_chat(
         await save_chat_state(member_id, article_id, state)
 
         return gpt_response
+    except ValueError as e:
+        print(f"Error in handle_chat: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         print(f"Error in handle_chat: {str(e)}")
         raise
