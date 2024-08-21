@@ -1,9 +1,9 @@
 fastapi
 uvicorn
-httpx
-pydantic
-python-dotenv
-pymongo
+openai
+redis
+aiomysql
 sqlalchemy
-databases
-pymysql
+pydantic
+python-jose[cryptography]  # JWT 인증을 위한 jose 사용
+pydantic-settings
