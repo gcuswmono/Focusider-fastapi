@@ -2,13 +2,6 @@ from pydantic import BaseModel
 from typing import Any, Optional
 
 
-# 기본 응답 스키마
-class ResponseSchema(BaseModel):
-    status: int
-    message: str
-    data: Optional[Any]
-
-
 # 채팅 요청 데이터를 검증하는 스키마
 class ChatSchema(BaseModel):
     member_id: int  # 유저의 ID

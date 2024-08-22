@@ -11,10 +11,3 @@ class ArticleResponseData(BaseModel):
 # 멤버 요청 데이터를 검증하는 스키마
 class MemberRequestSchema(BaseModel):
     member_id: int  # 유저의 ID
-
-
-# 기본 응답 스키마 (필요한 경우 확장 가능)
-class ResponseSchema(BaseModel):
-    status: int
-    message: str
-    data: ArticleResponseData

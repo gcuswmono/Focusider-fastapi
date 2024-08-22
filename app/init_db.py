@@ -1,6 +1,7 @@
+# app/init_db.py
 import asyncio
-from app.models.chat_history import Base
-from app.core.database import engine
+from app.core.database import engine, Base
+import app.models  # __init__.py에서 모든 모델을 한 번에 불러옴
 
 
 # 비동기 DB 초기화 함수

@@ -4,8 +4,8 @@ from app.core.database import get_db
 from app.schemas.article_schemas import (
     ArticleResponseData,
     MemberRequestSchema,
-    ResponseSchema,
 )
+from app.schemas.common_schemas import ResponseSchema
 from app.services.article_service import get_random_unseen_article
 
 router = APIRouter()
