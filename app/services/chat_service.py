@@ -24,7 +24,7 @@ async def get_chat_state(member_id: int, article_id: int):
 # Redis에 채팅 상태 저장
 async def save_chat_state(member_id: int, article_id: int, state: dict):
     key = f"chat:{member_id}:{article_id}"
-    await redis_client.set(key, json.dumps(state, ensure_ascii=False))
+    await redis_client.set(key, json.dumps(state))
 
 
 # GPT-4o-mini 모델을 호출하는 함수
